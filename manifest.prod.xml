@@ -5,7 +5,7 @@
 	xmlns:ov="http://schemas.microsoft.com/office/taskpaneappversionoverrides" 
 	xsi:type="TaskPaneApp">
   <Id>dfa71036-be80-43c1-8d84-8f886a9d7500</Id>
-  <Version>1.0.0.7</Version>
+  <Version>1.0.0.8</Version>
   <ProviderName>Smartpat</ProviderName>
   <DefaultLocale>en-US</DefaultLocale>
   <DisplayName DefaultValue="Patent Tools"/>
