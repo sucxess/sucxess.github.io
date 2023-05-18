@@ -31,14 +31,11 @@ async function run() {
 	  console.log("Title: ",title);
 	  
 	  
-	  console.log("Bookmarks:");
-	  console.log(bookmarks);
-	  console.log(bookmarks.value);
-	  console.log(bookmarks.value.length);
+	  console.log("Bookmarks: ",bookmarks.value.length);
 	  console.log("Title:",title);
   
   
-  
+	  // Assignment - Declaration Form
 	  if (title.includes("SP001")){
 		  var type=context.document.getBookmarkRange("Type");
 		  var count=context.document.getBookmarkRange("Count");
@@ -91,6 +88,61 @@ async function run() {
 		  }	
 	  }
   
+	  
+	  // Auftragsbestätigung
+	  if (title.includes("SP002")){
+		  var appno=context.document.getBookmarkRange("ApplicationNum");
+		  var conflict=context.document.getBookmarkRange("Conflict");
+		  var entity=context.document.getBookmarkRange("Entity");
+		  appno.load('text');
+		  conflict.load('text');
+		  entity.load('text');
+		  await context.sync();
+		  console.log("Application No. ",appno.text);
+		  console.log("Conflict",conflict.text);
+		  console.log("entity. ",entity.text);
+		  
+		  // Set alternatives based on text
+	  
+		  if (appno.text.includes("PCT")){
+			  // Make PCT, delete Paris
+			  var alt1="Paris"	
+		  } else {
+			  var alt1="PCT"	
+		  }
+		  
+		  if (conflict.text.length>5){
+			  // Delete the wrong one...
+			  var alt2="NoConflict"	
+		  } else {
+			  var alt2="HasConflict"	
+		  }
+		  
+		  if (entity.text.includes("Small")){
+			  // Make PCT, delete Paris
+			  var alt3="Large"	
+		  } else {
+			  var alt3="Small"	
+		  }
+	  
+		  console.log("Selected alternatives = will delete: ",alt1);
+		  let i = 0;
+		  while (i < bookmarks.value.length) {
+			  console.log(bookmarks.value[i]);
+			  if (bookmarks.value[i].includes(alt1)|| bookmarks.value[i].includes(alt2)|| bookmarks.value[i].includes(alt3)) {
+				  console.log("Now deleting ",bookmarks.value[i],alt1,alt2,alt3);
+				  var range=context.document.getBookmarkRangeOrNullObject(bookmarks.value[i]);
+				  range.load("text");
+				  await context.sync();
+				  console.log(range.text);
+				  range.delete();
+				  console.log(range);
+				  await context.sync();
+			  }
+			  i++;
+		  }	
+	  }
+	  
 	  
 	// Load objects for display in Script Lab console.
 	await context.sync();
