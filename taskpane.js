@@ -28,6 +28,7 @@ async function run() {
     console.log(bookmarks);
 	console.log(bookmarks.value);
 	console.log(bookmarks.value.length);
+	console.log("Title:",title);
 
 
 	if (title.includes("AssignmentDeclaration")){
