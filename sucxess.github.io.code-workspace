@@ -2,9 +2,6 @@
 	"folders": [
 		{
 			"path": "."
-		},
-		{
-			"path": "../../../../SP-Add-In/assets"
 		}
 	],
 	"settings": {}
