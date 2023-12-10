@@ -27,8 +27,8 @@
             <h3>Trademark Office Action Feedback Form</h3>
             <table id="inputTable" class="table table-sm d-print-none">
                 <tr>
-                    <th>Original</th>
-                    <th>Examiner Proposal/Question</th>
+                    <th>Original (copy/paste from TSDR)</th>
+                    <th>Examiner Proposal/Question (copy/paste from OA)</th>
                 </tr>
                 <tr>
                     <td>
@@ -56,13 +56,19 @@
 
             <table id="resultTable" class="table table-bordered table-sm">
                 <tr>
-                    <th>Original</th>
+                    <th>Original Description</th>
                     <th>Examiner Proposal/Question</th>
                     <th>Response</th>
                 </tr>
                 <!-- Placeholder rows for substrings -->
             </table>
+            <br>
+            <h6 class="d-print-none">Response Summary</h6>
+            <textarea class="form-control d-print-none" id="textbox3" ></textarea>
+
         </div>
+
+
     </main>
     <script>
         function processText() {
@@ -92,7 +98,7 @@
             var table = document.getElementById("resultTable");
 
             // Clear existing rows in the table
-            table.innerHTML = '<tr><th>Original</th><th>Examiner Proposal/Question</th><th>Response</th></tr>';
+            table.innerHTML = '<tr><th>Original Description</th><th>Examiner Proposal/Question</th><th>Response</th></tr>';
 
             // Display the resulting substrings in the table
             for (var i = 0; i < maxRows; i++) {
@@ -126,17 +132,17 @@
                         });
 
                         if (substrings2[i].includes('{')) {
-                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-warning'>Clarification</span> <span contenteditable='true'>" + substrings2[i].replace(/\{.*?\}/, "______________") + "</span><br><span class='text-secondary'>Please provide required clarification.</span>";
+                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-warning'>Clarification</span> <span contenteditable='true' class='response' oninput='collectresults()'>" + substrings2[i].replace(/\{.*?\}/, "______________") + "</span><br><span class='text-secondary'>Please provide required clarification.</span>";
 
                         } else {
-                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-secondary'>Review</span> <span contenteditable='true'>" + substrings2[i] + "</span><br><span class='text-secondary'>Please advise if any changes are needed, or if entry should be deleted.</span>";
+                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-secondary'>Review</span> <span contenteditable='true' class='response' oninput='collectresults()'>" + substrings2[i] + "</span><br><span class='text-secondary'>Please advise if any changes are needed, or if entry should be deleted.</span>";
                         }
 
 
                     } else {
                         // If no difference, display the text as is
                         cell2.innerHTML = substrings2[i];
-                        cell3.innerHTML = "<p class='text-secondary' contenteditable='true'>keep as is</p>";
+                        cell3.innerHTML = "<span class='badge rounded-pill text-bg-success' contenteditable='true'>OK</span> <span class='text-secondary response' contenteditable='true' oninput='collectresults()'>" + substrings2[i] + "</span><br><span class='text-secondary'>No change required.</span>";
                     }
                 } else {
                     // If the second textarea is shorter, display an empty cell
@@ -147,32 +153,24 @@
 
         }
 
-        function highlightDifferences(text1, text2) {
-            var words1 = text1.split(" ");
-            var words2 = text2.split(" ");
-            var highlightedText = "";
+        function collectresults() {
+            // Get all elements with class 'response'
+            var responseElements = document.querySelectorAll('.response');
 
-            // Find added words and underline them
-            for (var i = 0; i < words2.length; i++) {
-                if (!words1.includes(words2[i])) {
-                    highlightedText += '<span class="added">' + words2[i] + '</span> ';
-                } else {
-                    highlightedText += words2[i] + ' ';
-                }
-            }
+            // Concatenate the contents of all elements
+            var concatenatedContent = Array.from(responseElements).map(function(element) {
+            return element.textContent || element.innerText;
+            }).join(';');
 
-            // Find removed words and strikethrough them
-            for (var j = 0; j < words1.length; j++) {
-                if (!words2.includes(words1[j])) {
-                    highlightedText += '<span class="removed">' + words1[j] + '</span> ';
-                }
-            }
-
-            return highlightedText.trim();
+            var resultselement = document.getElementById("textbox3");
+            resultselement.value=concatenatedContent;
+            //console.log(concatenatedContent);
         }
+
 
         // Run the script initially to handle any existing content in the textareas
         processText();
+
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"></script>
 
