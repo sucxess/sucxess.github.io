@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TM OA Response Tool</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+@media print{    
+    .container{
+        max-width:100%;
+        margin:0px;
+        font-size: x-small;
+
+    }
+}
+    </style>
+</head>
+
+
+
+<body>
+    <main>
+        <div class="container">
+            <h3>Trademark Office Action Feedback Form</h3>
+            <table id="inputTable" class="table table-sm d-print-none">
+                <tr>
+                    <th>Original</th>
+                    <th>Examiner Proposal/Question</th>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea id="textbox1" name="textbox1" placeholder="Type something..." class="form-control"
+                            oninput="processText()"></textarea>
+                    </td>
+                    <td>
+                        <textarea id="textbox2" name="textbox2" placeholder="Type something else..."
+                            class="form-control" oninput="processText()"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <p id="count1"></p>
+                    </td>
+                    <td>
+                        <p id="count2"></p>
+                    </td>
+                </tr>
+                <!-- Placeholder rows for substrings -->
+            </table>
+
+
+            <br>
+
+            <table id="resultTable" class="table table-bordered table-sm">
+                <tr>
+                    <th>Original</th>
+                    <th>Examiner Proposal/Question</th>
+                    <th>Response</th>
+                </tr>
+                <!-- Placeholder rows for substrings -->
+            </table>
+        </div>
+    </main>
+    <script>
+        function processText() {
+            // Get the content of the first textarea
+            var textareaContent1 = document.getElementById("textbox1").value;
+            textareaContent1 = textareaContent1.replace(/\n/g, ' ');
+            textareaContent1 = textareaContent1.replace(/ +/g, ' ');
+
+            // Get the content of the second textarea
+            var textareaContent2 = document.getElementById("textbox2").value;
+            textareaContent2 = textareaContent2.replace(/\n/g, ' ');
+            textareaContent2 = textareaContent2.replace(/ +/g, ' ');
+            
+            // Split the content of the first textarea into parts when a semicolon is found
+            var substrings1 = textareaContent1.split(";");
+
+            // Split the content of the second textarea into parts when a semicolon is found
+            var substrings2 = textareaContent2.split(";");
+
+            // Determine the maximum number of rows needed
+            var maxRows = Math.max(substrings1.length, substrings2.length);
+
+            document.getElementById("count1").innerHTML=substrings1.length;
+            document.getElementById("count2").innerHTML=substrings2.length;
+
+            // Get the table element
+            var table = document.getElementById("resultTable");
+
+            // Clear existing rows in the table
+            table.innerHTML = '<tr><th>Original</th><th>Examiner Proposal/Question</th><th>Response</th></tr>';
+
+            // Display the resulting substrings in the table
+            for (var i = 0; i < maxRows; i++) {
+                var row = table.insertRow(-1);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+
+                // Display the content of the first textarea
+                cell1.innerHTML = i < substrings1.length ? substrings1[i] : "";
+
+                // Display the content of the second textarea with formatting
+                if (i < substrings2.length) {
+                    if (substrings1[i] !== substrings2[i]) {
+                        // If there's a difference, apply formatting
+                        const diff = Diff.diffWords(substrings1[i], substrings2[i]);
+
+                        diff.forEach((part) => {
+                            // green for additions, red for deletions
+                            // grey for common parts
+                            const decoration = part.added ? 'underline' :
+                                part.removed ? 'line-through' : '';
+                            const color = part.added ? 'green' :
+                                part.removed ? 'red' : '';
+                            span = document.createElement('span');
+                            span.style.textDecoration = decoration;
+                            span.style.color = color;
+                            span.appendChild(document
+                                .createTextNode(part.value));
+                            cell2.appendChild(span);
+                        });
+
+                        if (substrings2[i].includes('{')) {
+                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-warning'>Clarification</span> <span contenteditable='true'>" + substrings2[i].replace(/\{.*?\}/, "______________") + "</span><br><span class='text-secondary'>Please provide required clarification.</span>";
+
+                        } else {
+                            cell3.innerHTML = "<span class='badge rounded-pill text-bg-secondary'>Review</span> <span contenteditable='true'>" + substrings2[i] + "</span><br><span class='text-secondary'>Please advise if any changes are needed, or if entry should be deleted.</span>";
+                        }
+
+
+                    } else {
+                        // If no difference, display the text as is
+                        cell2.innerHTML = substrings2[i];
+                        cell3.innerHTML = "<p class='text-secondary' contenteditable='true'>keep as is</p>";
+                    }
+                } else {
+                    // If the second textarea is shorter, display an empty cell
+                    cell2.innerHTML = "";
+                }
+
+            }
+
+        }
+
+        function highlightDifferences(text1, text2) {
+            var words1 = text1.split(" ");
+            var words2 = text2.split(" ");
+            var highlightedText = "";
+
+            // Find added words and underline them
+            for (var i = 0; i < words2.length; i++) {
+                if (!words1.includes(words2[i])) {
+                    highlightedText += '<span class="added">' + words2[i] + '</span> ';
+                } else {
+                    highlightedText += words2[i] + ' ';
+                }
+            }
+
+            // Find removed words and strikethrough them
+            for (var j = 0; j < words1.length; j++) {
+                if (!words2.includes(words1[j])) {
+                    highlightedText += '<span class="removed">' + words1[j] + '</span> ';
+                }
+            }
+
+            return highlightedText.trim();
+        }
+
+        // Run the script initially to handle any existing content in the textareas
+        processText();
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.min.js"></script>
+
+</body>
+
+</html>
